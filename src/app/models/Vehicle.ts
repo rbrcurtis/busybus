@@ -14,11 +14,19 @@ export default class Vehicle {
   heading:number;
   speedKmHr:number;
   leadingVehicleId:number;
+  get label():string{
+    return `${this.id}\nRoute ${this.routeTag}\n${this.dirTag}`
+  }
 
   constructor(data) {
     this.id = Number(data.getAttribute('id'));
     this.routeTag = data.getAttribute('routeTag');
-    this.dirTag = data.getAttribute('dirTag');
+    this.dirTag = data.getAttribute('dirTag') || '';
+    let m = this.dirTag.match(/([a-z])_+([OI])_+/i);
+    if (m.length > 1) {
+      let dir:string = (m[2] === 'O')? 'Outbound' : 'Inbound';
+      this.dirTag = dir;
+    }
     this.lat = Number(data.getAttribute('lat'));
     this.lon = Number(data.getAttribute('lon'));
     this.secsSinceReport = Number(data.getAttribute('secsSinceReport'));
@@ -28,11 +36,17 @@ export default class Vehicle {
     this.leadingVehicleId = Number(data.getAttribute('leadingVehicleId'));
   }
 
+  private static last:number = null;
 
   static load() {
     return new Promise((resolve) => {
-      $.ajax('http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=sf-muni&t=1499744484637', {
+      if (this.last === null) {
+        this.last = 0;
+      }
+      let now = Date.now();
+      $.ajax(`http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=sf-muni&r=N&t=${this.last}`, {
         success: (data:any) => {
+          this.last = now;
           if (data && data.children && data.children[0] && data.children[0].children && data.children[0].children.length)
           for (let i = 0; i < data.children[0].children.length; i++) {
             let item = data.children[0].children.item(i);
