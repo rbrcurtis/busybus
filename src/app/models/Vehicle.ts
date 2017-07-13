@@ -23,7 +23,7 @@ export default class Vehicle {
     this.routeTag = data.getAttribute('routeTag');
     this.dirTag = data.getAttribute('dirTag') || '';
     let m = this.dirTag.match(/([a-z])_+([OI])_+/i);
-    if (m.length > 1) {
+    if (m && m.length > 1) {
       let dir:string = (m[2] === 'O')? 'Outbound' : 'Inbound';
       this.dirTag = dir;
     }
