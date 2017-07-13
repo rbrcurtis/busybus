@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import Vehicle from '../../models/Vehicle';
 
-const animationSteps = 60;
-const animationDuration = 15000;
+const animationStepInterval = 200;
+const animationDuration = 10000;
+const animationSteps = animationDuration / animationStepInterval;
 let loopCount:number = 0;
 
 let debug = function(...args) {
@@ -15,10 +16,89 @@ let debug = function(...args) {
   styleUrls: ['./styles.css']
 })
 export class AppComponent {
+  
   _vehicles:Map<number, Vehicle> = new Map<number, Vehicle>();
+  zoom:number;
+  latCenter:number;
+  lngCenter:number;
+  latNorth:number;
+  latSouth:number;
+  lngWest:number;
+  lngEast:number;
+
 
   get vehicles():Vehicle[] {
-    return Array.from(this._vehicles.values());
+    return Array.from(this._vehicles.values()).filter((v) => {
+      // only render busses that are on map
+      return (
+        v.lat <= this.latNorth &&
+        v.lat >= this.latSouth &&
+        v.lon <= this.lngEast &&
+        v.lon >= this.lngWest
+      );
+    });
+  }
+
+  onZoomChange(zoom:number) {
+    // console.log('zoomChange', zoom);
+    this.zoom = zoom;
+  }
+
+  onCenterChange({lat, lng} : {lat:number, lng:number}) {
+    // console.log('centerChange', lat, lng);
+    this.latCenter = lat;
+    this.lngCenter = lng;
+  }
+
+  onBoundsChange(obj:any) {
+    // console.log('boundsChange', arguments);
+    this.latNorth = obj.f.b;
+    this.latSouth = obj.f.f;
+    this.lngWest = obj.b.b;
+    this.lngEast = obj.b.f;
+  }
+
+  updateVehicles(loopCount:number) {
+    console.log(new Date().toLocaleString(), 'updating vehicles', loopCount);
+    return Vehicle.load().then((v:Map<number, Vehicle>) => {
+      v.forEach((newVehicleData:Vehicle, key:number) => {
+        let vehicle = this._vehicles.get(key);
+        if (!vehicle) {
+
+          this._vehicles.set(key, newVehicleData);
+
+        } else {
+
+          let {lat, lon} = vehicle;
+
+          debug(`[${key}]`, loopCount, 'animating', 'lat:', vehicle.lat, '=>', newVehicleData.lat, 'lon:', vehicle.lon, '=>', newVehicleData.lon);
+
+          let step = 1;
+          let latStep = (newVehicleData.lat - vehicle.lat) / animationSteps;
+          let lonStep = (newVehicleData.lon - vehicle.lon) / animationSteps;
+
+          debug(`[${key}]`, loopCount, 'steps', latStep, lonStep);
+
+          let id = setInterval(() => {
+
+            // if we += the step to the current value then we get A LOT of drift.
+            vehicle.lat = lat + (step * latStep);
+            vehicle.lon = lon + (step * lonStep);
+            debug(`[${key}]`, loopCount, step, 'updated lat/lon', vehicle.lat, vehicle.lon);
+
+            step++;
+
+            if (step > animationSteps){
+              debug(`[${key}]`, loopCount, 'animation complete');
+              clearInterval(id);
+              debug('ending')
+              return;
+            }
+
+          }, animationStepInterval);
+        }
+      });
+    });
   }
 
   constructor() { 
@@ -30,46 +110,6 @@ export class AppComponent {
       })
     };
     loop();
-  }
-
-  updateVehicles(loopCount:number) {
-    debug(new Date().toLocaleString(), 'updating vehicles', loopCount);
-    return Vehicle.load().then((v:Map<number, Vehicle>) => {
-      v.forEach((vehicle:Vehicle, key:number) => {
-        let previousVehicle = this._vehicles.get(key);
-        if (!previousVehicle) {
-
-          this._vehicles.set(key, vehicle);
-
-        } else {
-          debug(`[${key}]`, loopCount, 'animating', 'lat:', previousVehicle.lat, '=>', vehicle.lat, 'lon:', previousVehicle.lon, '=>', vehicle.lon);
-
-          let step = 1;
-          let latStep = (vehicle.lat - previousVehicle.lat) / animationSteps;
-          let lonStep = (vehicle.lon - previousVehicle.lon) / animationSteps;
-
-          debug(`[${key}]`, loopCount, 'steps', latStep, lonStep);
-
-          let id = setInterval(() => {
-
-            if (step > animationSteps){
-              debug(`[${key}]`, loopCount, step, 'clearing');
-              clearInterval(id);
-              debug('ending')
-              return;
-            }
-
-            vehicle.lat = previousVehicle.lat + (step * latStep);
-            vehicle.lon = previousVehicle.lon + (step * lonStep);
-            debug(`[${key}]`, loopCount, step, 'updated lat/lon', vehicle.lat, vehicle.lon);
-            this._vehicles.set(key, vehicle);
-
-            step++;
-
-          }, animationDuration / animationSteps);
-        }
-      });
-    });
   }
 
 }

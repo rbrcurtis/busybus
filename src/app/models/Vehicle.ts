@@ -22,7 +22,7 @@ export default class Vehicle {
     this.id = Number(data.getAttribute('id'));
     this.routeTag = data.getAttribute('routeTag');
     this.dirTag = data.getAttribute('dirTag') || '';
-    let m = this.dirTag.match(/([a-z])_+([OI])_+/i);
+    let m = this.dirTag.match(/([a-z0-9])_+([OI])_+/i);
     if (m && m.length > 1) {
       let dir:string = (m[2] === 'O')? 'Outbound' : 'Inbound';
       this.dirTag = dir;
@@ -44,7 +44,7 @@ export default class Vehicle {
         this.last = 0;
       }
       let now = Date.now();
-      $.ajax(`http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=sf-muni&r=N&t=${this.last}`, {
+      $.ajax(`http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=sf-muni&t=${this.last}&r=M`, {
         success: (data:any) => {
           this.last = now;
           if (data && data.children && data.children[0] && data.children[0].children && data.children[0].children.length)
