@@ -70,14 +70,21 @@ export default class Vehicle {
   heading:number;
   speedKmHr:number;
   leadingVehicleId:number;
-  rotation:number = 45;
+  angle:number = 45;
+  get rotation():number {
+    return NumberUtil.roundTo(this.angle, 45);
+  }
 
   get iconUrl():string {
     return `assets/Scool_Bus-${this.rotation}.png`;
   }
   get label():string {
-    // return `${this.id}\nRoute ${this.routeTag}\n${this.dirTag}`
-    return `${this.id}\nlat ${this.lat}\nlon ${this.lon}`
+    // return [
+    //   this.id,
+    //   `Route ${this.routeTag}`,
+    //    this.dirTag
+    // ].join("\n");
+    return [this.id, this.lat, this.lon, this.angle, this.rotation].join("\n");
   }
 
   constructor(data) {
@@ -100,9 +107,9 @@ export default class Vehicle {
 
   moveTo(latNew:number, lonNew:number) {
     let loopCount = Vehicle.loopCount;
-    let angle = NumberUtil.angleOf({lat:this.lat, lng:this.lon}, {lat:latNew, lng:lonNew});
+    this.angle = NumberUtil.angleOf({lat:this.lat, lng:this.lon}, {lat:latNew, lng:lonNew});
     
-    debug(this.id, loopCount, 'animating', 'lat:', this.lat, '=>', latNew, 'lon:', this.lon, '=>', lonNew, 'angle', angle);
+    debug(this.id, loopCount, 'animating', 'lat:', this.lat, '=>', latNew, 'lon:', this.lon, '=>', lonNew, 'angle', this.angle);
 
     let latStart = this.lat;
     let lonStart = this.lon;
