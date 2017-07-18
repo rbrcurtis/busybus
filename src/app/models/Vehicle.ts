@@ -5,10 +5,11 @@ import NumberUtil from '../lib/NumberUtil'
 export default class Vehicle {
   
   private static loopCount:number = 0;
-  private static last:number = null;
+  private static last:number = 0;
   static records:Map<number, Vehicle> = new Map<number, Vehicle>();
   static readonly moveDuration:number = 10000;
   static moveSteps:number = 5;
+  static route:string = '';
 
   static init():void {
     let loop = () => {
@@ -23,12 +24,9 @@ export default class Vehicle {
 
   private static load():Promise<Vehicle[]> {
     return new Promise((resolve) => {
-      if (this.last === null) {
-        this.last = 0;
-      }
       let vehicles:Vehicle[] = [];
       let now = Date.now();
-      $.ajax(`http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=sf-muni&t=${this.last}&r=M`, {
+      $.ajax(`http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=sf-muni&t=${this.last}&r=${this.route}`, {
         success: (data:any) => {
           this.last = now;
           if (data && data.children && data.children[0] && data.children[0].children && data.children[0].children.length)
@@ -45,7 +43,7 @@ export default class Vehicle {
   }
 
   private static updateVehicles(loopCount:number):Promise<void> {
-    console.log(new Date().toLocaleString(), 'updating vehicles', loopCount);
+    console.log(new Date().toLocaleString(), 'updating vehicles', loopCount, 'moveSteps is', this.moveSteps);
     return Vehicle.load().then((v:Vehicle[]) => {
       v.forEach((newVehicleData:Vehicle) => {
         let key = newVehicleData.id;
@@ -109,7 +107,8 @@ export default class Vehicle {
     let loopCount = Vehicle.loopCount;
     this.angle = NumberUtil.angleOf({lat:this.lat, lng:this.lon}, {lat:latNew, lng:lonNew});
     
-    debug(this.id, loopCount, 'animating', 'lat:', this.lat, '=>', latNew, 'lon:', this.lon, '=>', lonNew, 'angle', this.angle);
+    debug(this.id, loopCount, 'animating', this.lat, ',', this.lon, '=>', latNew, ', ', lonNew, 'angle', this.angle, 'over', Vehicle.moveSteps, 'steps');
+    // debug(this.id, loopCount, 'animating {lat:', this.lat, ', lng:', this.lon, '}, {lat:', latNew, ', lng:', lonNew, '}, angle', this.angle);
 
     let latStart = this.lat;
     let lonStart = this.lon;

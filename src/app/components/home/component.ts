@@ -19,7 +19,7 @@ export class AppComponent {
   lngEast:number;
 
   get vehicles():Vehicle[] {
-    return Array.from(Vehicle.records.values()).filter((v) => {
+    let ret:Vehicle[] = Array.from(Vehicle.records.values()).filter((v) => {
       let key = currentDebugKey();
       if (key) {
         return (String(v.id) === key);
@@ -32,6 +32,27 @@ export class AppComponent {
         v.lon >= this.lngWest
       );
     });
+
+
+    let updates:number;
+
+    if (ret.length < 10) {
+      updates = 60;
+    } else if (ret.length < 20) {
+      updates = 30;
+    } else if (ret.length < 30) {
+      updates = 15;
+    } else if (ret.length < 40) {
+      updates = 8;
+    } else if (ret.length < 50) {
+      updates = 4;
+    } else if (ret.length < 60) {
+      updates = 2;
+    } else {
+      updates = 1;
+    }
+    Vehicle.moveSteps = updates;
+    return ret;
   }
 
   onZoomChange(zoom:number):void {
