@@ -1,3 +1,27 @@
-<agm-map [latitude]="37.757288" [longitude]="-122.436227" [zoom]="13" (zoomChange)="onZoomChange($event)" (centerChange)="onCenterChange($event)" (boundsChange)="onBoundsChange($event)">
-  <agm-marker [iconUrl]=vehicle.iconUrl [latitude]=vehicle.lat [longitude]=vehicle.lon [label]=vehicle.routeTag [title]=vehicle.label [zIndex]=vehicle.id template="ngFor let vehicle of vehicles; index as i;"></agm-marker>
-</agm-map>
+<div class="busy-bus">
+
+  <div class="header">
+    
+    <div class="flex-row">
+
+      <md-select placeholder="Route" [(ngModel)]="currentRoute" (change)="onRouteChange($event)">
+         <md-option *ngFor="let route of routes" [value]="route">{{ route.title }}</md-option>
+      </md-select>
+
+      <div class="bus-count" *ngIf="vehicles">
+        {{vehicles.length}} busses
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="map">
+
+    <agm-map [latitude]="37.757288" [longitude]="-122.436227" [zoom]="13" (boundsChange)="onBoundsChange($event)">
+      <agm-marker [iconUrl]=vehicle.iconUrl [latitude]=vehicle.lat [longitude]=vehicle.lon [label]=vehicle.routeTag [title]=vehicle.label [zIndex]=vehicle.id template="ngFor let vehicle of vehicles; index as i;"></agm-marker>
+    </agm-map>
+
+  </div>
+
+</div>

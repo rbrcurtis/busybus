@@ -6,24 +6,13 @@ export default class Vehicle {
   
   private static loopCount:number = 0;
   private static last:number = 0;
-  static records:Map<number, Vehicle> = new Map<number, Vehicle>();
-  static readonly moveDuration:number = 10000;
-  static moveSteps:number = 5;
-  static route:string = '';
-
-  static init():void {
-    let loop = () => {
-      return this.updateVehicles(this.loopCount)
-      .then(() => {
-        this.loopCount++;
-        setTimeout(loop.bind(this), this.moveDuration);
-      })
-    };
-    loop();
-  }
+  public static records:Map<number, Vehicle> = new Map<number, Vehicle>();
+  public static readonly moveDuration:number = 10000;
+  public static moveSteps:number = 5;
+  public static route:string = '';
 
   private static load():Promise<Vehicle[]> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       let vehicles:Vehicle[] = [];
       let now = Date.now();
       $.ajax(`http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=sf-muni&t=${this.last}&r=${this.route}`, {
@@ -37,6 +26,9 @@ export default class Vehicle {
             }
           }
           resolve(vehicles);
+        },
+        error: (jqXHR:any, textStatus:string, errorThrown:string) => {
+          reject(new Error(errorThrown || textStatus));
         }
       });
     });
@@ -56,6 +48,17 @@ export default class Vehicle {
         }
       });
     });
+  }
+
+  public static init():void {
+    let loop = () => {
+      return this.updateVehicles(this.loopCount)
+      .then(() => {
+        this.loopCount++;
+        setTimeout(loop.bind(this), this.moveDuration);
+      })
+    };
+    loop();
   }
 
   id:number;
@@ -85,7 +88,7 @@ export default class Vehicle {
     return [this.id, this.lat, this.lon, this.angle, this.rotation].join("\n");
   }
 
-  constructor(data) {
+  public constructor(data) {
     this.id = Number(data.getAttribute('id'));
     this.routeTag = data.getAttribute('routeTag');
     this.dirTag = data.getAttribute('dirTag') || '';
@@ -103,7 +106,7 @@ export default class Vehicle {
     this.leadingVehicleId = Number(data.getAttribute('leadingVehicleId'));
   }
 
-  moveTo(latNew:number, lonNew:number) {
+  public moveTo(latNew:number, lonNew:number) {
     let loopCount = Vehicle.loopCount;
     this.angle = NumberUtil.angleOf({lat:this.lat, lng:this.lon}, {lat:latNew, lng:lonNew});
     

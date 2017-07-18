@@ -1,0 +1,33 @@
+.busy-bus {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  .header {
+    flex: 0 1 30px;
+
+    .flex-row {
+      display: flex;
+      flex-direction: row;
+      md-select {
+        display: inline-block;
+        flex: 0 1 50%;
+      }
+      .bus-count {
+        display: inline-block;
+        flex: 1 1 50%;
+        line-height: 30px;
+        font-size: 16px;
+        padding-left: 20px;
+      }
+    }
+  }
+  
+  .map {
+    flex: 1 1;
+    agm-map {
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
