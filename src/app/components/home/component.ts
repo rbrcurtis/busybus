@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import Vehicle from '../../models/Vehicle';
 import Route from '../../models/Route';
+import BusStop from '../../models/BusStop';
 import MapCoordinates from '../../models/MapCoordinates';
 import {currentDebugKey} from '../../lib/debug';
 
@@ -19,8 +20,8 @@ export class AppComponent {
   lngEast:number;
   routes:Route[];
   currentRoute:Route;
-
   vehicles:Vehicle[];
+  busStops:BusStop[];
 
 
   filterVehicles() {
@@ -76,6 +77,10 @@ export class AppComponent {
   onRouteChange() {
     console.log('onRouteChange', this.currentRoute);
     Vehicle.route = this.currentRoute.tag;
+    BusStop.getStopsForRoute(this.currentRoute.tag)
+    .then((stops) => {
+      this.busStops = stops;
+    });
     this.filterVehicles();
   }
 

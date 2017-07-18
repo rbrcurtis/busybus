@@ -19,7 +19,10 @@
   <div class="map">
 
     <agm-map [latitude]="37.757288" [longitude]="-122.436227" [zoom]="13" (boundsChange)="onBoundsChange($event)">
-      <agm-marker [iconUrl]=vehicle.iconUrl [latitude]=vehicle.lat [longitude]=vehicle.lon [label]=vehicle.routeTag [title]=vehicle.label [zIndex]=vehicle.id template="ngFor let vehicle of vehicles; index as i;"></agm-marker>
+      <agm-marker *ngFor="let vehicle of vehicles; index as i;" [iconUrl]=vehicle.iconUrl [latitude]=vehicle.lat [longitude]=vehicle.lon [label]=vehicle.routeTag [title]=vehicle.label [zIndex]=10000+vehicle.id>
+      </agm-marker>
+      <agm-marker *ngFor="let stop of busStops; index as i;" [latitude]=stop.lat [longitude]=stop.lon [title]=stop.title [zIndex]=stop.id [iconUrl]="'assets/bus-stop.png'">
+      </agm-marker>
     </agm-map>
 
   </div>

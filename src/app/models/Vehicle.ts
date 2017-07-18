@@ -16,13 +16,14 @@ export default class Vehicle {
       let vehicles:Vehicle[] = [];
       let now = Date.now();
       $.ajax(`http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=sf-muni&t=${this.last}&r=${this.route}`, {
-        success: (data:any) => {
+        success: (data:Document) => {
           this.last = now;
-          if (data && data.children && data.children[0] && data.children[0].children && data.children[0].children.length)
-          for (let i = 0; i < data.children[0].children.length; i++) {
-            let item = data.children[0].children.item(i);
-            if (item && item.tagName === 'vehicle') {
-              vehicles.push(new Vehicle(item));
+          if (data && data.children && data.children[0] && data.children[0].children && data.children[0].children.length) {
+            for (let i = 0; i < data.children[0].children.length; i++) {
+              let item = data.children[0].children.item(i);
+              if (item && item.tagName === 'vehicle') {
+                vehicles.push(new Vehicle(item));
+              }
             }
           }
           resolve(vehicles);
@@ -77,7 +78,7 @@ export default class Vehicle {
   }
 
   get iconUrl():string {
-    return `assets/Scool_Bus-${this.rotation}.png`;
+    return `assets/School_Bus-${this.rotation}.png`;
   }
   get label():string {
     // return [
