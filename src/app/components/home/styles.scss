@@ -25,7 +25,10 @@
   
   .map {
     flex: 1 1;
+    display: flex;
+    position: relative; //https://stackoverflow.com/questions/33636796/chrome-safari-not-filling-100-height-of-flex-parent
     agm-map {
+      position: absolute;
       height: 100%;
       width: 100%;
     }
