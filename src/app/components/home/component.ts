@@ -62,11 +62,10 @@ export class AppComponent {
     }
     this.vehicles = ret;
     Vehicle.moveSteps = updates;
-    console.log('filtered down to', this.vehicles.length, 'vehicles, set move steps to', updates);
   }
 
   onBoundsChange(obj:any):void {
-    // console.log('boundsChange', arguments);
+    console.log('boundsChange', obj);
     this.latNorth = obj.f.b;
     this.latSouth = obj.f.f;
     this.lngWest = obj.b.b;
@@ -91,7 +90,7 @@ export class AppComponent {
     ]).then(([vehicles, routes]) => {
       this.currentRoute = new Route({tag:'', title:'All Routes'});
       this.routes = [this.currentRoute].concat(routes);
-      // bounds change will initiate filter.
+      this.filterVehicles();
     });
   }
 

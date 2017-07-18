@@ -48,10 +48,11 @@ export default class Vehicle {
           vehicle.moveTo(newVehicleData.lat, newVehicleData.lon);
         }
       });
+      console.log('vehicle load complete');
     });
   }
 
-  public static init():void {
+  public static init():Promise<void> {
     let loop = () => {
       return this.updateVehicles(this.loopCount)
       .then(() => {
@@ -59,7 +60,7 @@ export default class Vehicle {
         setTimeout(loop.bind(this), this.moveDuration);
       })
     };
-    loop();
+    return loop();
   }
 
   id:number;
@@ -73,6 +74,7 @@ export default class Vehicle {
   speedKmHr:number;
   leadingVehicleId:number;
   angle:number = 45;
+
   get rotation():number {
     return NumberUtil.roundTo(this.angle, 45);
   }
@@ -81,12 +83,11 @@ export default class Vehicle {
     return `assets/School_Bus-${this.rotation}.png`;
   }
   get label():string {
-    // return [
-    //   this.id,
-    //   `Route ${this.routeTag}`,
-    //    this.dirTag
-    // ].join("\n");
-    return [this.id, this.lat, this.lon, this.angle, this.rotation].join("\n");
+    return [
+      this.id,
+      `Route ${this.routeTag}`,
+       this.dirTag
+    ].join("\n");
   }
 
   public constructor(data) {
@@ -112,7 +113,6 @@ export default class Vehicle {
     this.angle = NumberUtil.angleOf({lat:this.lat, lng:this.lon}, {lat:latNew, lng:lonNew});
     
     debug(this.id, loopCount, 'animating', this.lat, ',', this.lon, '=>', latNew, ', ', lonNew, 'angle', this.angle, 'over', Vehicle.moveSteps, 'steps');
-    // debug(this.id, loopCount, 'animating {lat:', this.lat, ', lng:', this.lon, '}, {lat:', latNew, ', lng:', lonNew, '}, angle', this.angle);
 
     let latStart = this.lat;
     let lonStart = this.lon;
