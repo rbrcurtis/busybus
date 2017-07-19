@@ -76,7 +76,7 @@ export default class Vehicle {
   angle:number = 45;
 
   get rotation():number {
-    return NumberUtil.roundTo(this.angle, 45);
+    return NumberUtil.roundTo(this.heading, 45);
   }
 
   get iconUrl():string {
